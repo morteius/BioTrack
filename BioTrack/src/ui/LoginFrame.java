@@ -11,7 +11,7 @@ public class LoginFrame {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new BioTrack().showLogin();
+                new LoginFrame().showLogin();
             }
         });
     }
@@ -168,4 +168,5 @@ public class LoginFrame {
         frame.setVisible(true);
     }
 }
+
 
