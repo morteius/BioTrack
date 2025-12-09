@@ -2,7 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class BioTrack {
+public class LoginFrame {
 
     private final Authentication auth;   
     private boolean passVisible = false; // tracks password visibility
