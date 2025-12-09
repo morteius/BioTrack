@@ -16,7 +16,7 @@ public class LoginFrame {
         });
     }
 
-    public BioTrack() {
+    public LoginFrame() {
         auth = new Authentication();
     }
 
@@ -168,3 +168,4 @@ public class LoginFrame {
         frame.setVisible(true);
     }
 }
+
