@@ -1,0 +1,7 @@
+E1001,Projector,Electronics,Available
+E1002,Laptop,Electronics,Borrowed
+E1003,Microphone,Audio,Available
+E1004,Tripod,Accessories,Available
+E1005,HDMI Cable,Cables,Damaged
+E1006,Speakers,Audio,Borrowed
+E1007,Webcam,Electronics,Available

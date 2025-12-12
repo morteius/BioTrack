@@ -4,7 +4,7 @@ import java.awt.event.*;
 
 public class LoginFrame {
 
-    private final Authentication auth;   
+    private final Authentication auth;
     private boolean passVisible = false; // tracks password visibility
 
     public static void main(String[] args) {
@@ -41,7 +41,7 @@ public class LoginFrame {
         frame.add(card);
 
         // Logo
-        JLabel topIcon = new JLabel(scaled("src/logo.jpg", 80, 80));
+        JLabel topIcon = new JLabel(scaled("BioTrack/src/logo.jpg", 80, 80));
         topIcon.setBounds(130, 20, 80, 80);
         card.add(topIcon);
 
@@ -51,7 +51,7 @@ public class LoginFrame {
         card.add(lblLogin);
 
         // Username
-        JLabel iconUser = new JLabel(scaled("src/username.png", 25, 25));
+        JLabel iconUser = new JLabel(scaled("BioTrack/src/username.png", 25, 25));
         iconUser.setBounds(40, 150, 30, 30);
         card.add(iconUser);
 
@@ -88,7 +88,7 @@ public class LoginFrame {
         card.add(line1);
 
         // Password
-        JLabel iconPass = new JLabel(scaled("src/password.png", 25, 25));
+        JLabel iconPass = new JLabel(scaled("BioTrack/src/password.png", 25, 25));
         iconPass.setBounds(40, 210, 30, 30);
         card.add(iconPass);
 
@@ -107,7 +107,7 @@ public class LoginFrame {
                 String current = String.valueOf(txtPass.getPassword());
                 if (current.equals("Password")) {
 
-        txtPass.setText("");
+                    txtPass.setText("");
                     txtPass.setEchoChar('•');
                     txtPass.setForeground(Color.BLACK);
                     passVisible = false;
@@ -168,5 +168,3 @@ public class LoginFrame {
         frame.setVisible(true);
     }
 }
-
-
