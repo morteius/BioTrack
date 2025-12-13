@@ -29,7 +29,7 @@ public class EquipmentFrame {
         scroll.setBounds(20, 70, 350, 300);
         frame.add(scroll);
 
-        loadEquipment();   // ✅ NOW WORKS
+        loadEquipment();
 
         JButton btnAdd = new JButton("Add Equipment");
         btnAdd.setBounds(400, 70, 150, 35);
@@ -108,9 +108,6 @@ public class EquipmentFrame {
         frame.setVisible(true);
     }
 
-    // -------------------------------------------------------
-    // LOAD EQUIPMENT
-    // -------------------------------------------------------
     @SuppressWarnings("CallToPrintStackTrace")
 private void loadEquipment() {
     equipmentModel.clear();
@@ -148,10 +145,6 @@ private void loadEquipment() {
     }
 }
 
-
-    // -------------------------------------------------------
-    // SAVE EQUIPMENT
-    // -------------------------------------------------------
     @SuppressWarnings("CallToPrintStackTrace")
     private void saveEquipment() {
 
