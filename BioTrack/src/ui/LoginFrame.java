@@ -1,33 +1,27 @@
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.*;
 
 public class LoginFrame {
 
-    private final Authentication auth;
-    private boolean passVisible = false; // tracks password visibility
+    private final Authentication auth;   
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new LoginFrame().showLogin();
-            }
-        });
+        SwingUtilities.invokeLater(() -> new LoginFrame().showLogin());
     }
 
     public LoginFrame() {
         auth = new Authentication();
     }
 
-    // Load & Scale Icon
     private ImageIcon scaled(String path, int w, int h) {
         ImageIcon icon = new ImageIcon(path);
         Image img = icon.getImage().getScaledInstance(w, h, Image.SCALE_SMOOTH);
         return new ImageIcon(img);
     }
 
-    private void showLogin() {
+    public void showLogin() {
+
         JFrame frame = new JFrame("BioTrack");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 480);
@@ -55,24 +49,20 @@ public class LoginFrame {
         iconUser.setBounds(40, 150, 30, 30);
         card.add(iconUser);
 
-        JTextField txtUser = new JTextField();
+        JTextField txtUser = new JTextField("Username");
         txtUser.setBounds(80, 150, 200, 30);
         txtUser.setBorder(null);
-        txtUser.setFont(new Font("SansSerif", Font.PLAIN, 13));
         txtUser.setForeground(Color.GRAY);
-        txtUser.setText("Username");
 
-        // Placeholder for Username
         txtUser.addFocusListener(new FocusAdapter() {
-            @Override
+            @SuppressWarnings("override")
             public void focusGained(FocusEvent e) {
                 if (txtUser.getText().equals("Username")) {
                     txtUser.setText("");
                     txtUser.setForeground(Color.BLACK);
                 }
             }
-
-            @Override
+            @SuppressWarnings("override")
             public void focusLost(FocusEvent e) {
                 if (txtUser.getText().trim().isEmpty()) {
                     txtUser.setText("Username");
@@ -82,9 +72,9 @@ public class LoginFrame {
         });
         card.add(txtUser);
 
-        JLabel line1 = new JLabel("______________________________________");
-        line1.setBounds(80, 170, 200, 20);
+        JLabel line1 = new JLabel("______________________________");
         line1.setForeground(Color.LIGHT_GRAY);
+        line1.setBounds(80, 170, 200, 20);
         card.add(line1);
 
         // Password
@@ -92,44 +82,38 @@ public class LoginFrame {
         iconPass.setBounds(40, 210, 30, 30);
         card.add(iconPass);
 
-        JPasswordField txtPass = new JPasswordField();
+        JPasswordField txtPass = new JPasswordField("Password");
         txtPass.setBounds(80, 210, 200, 30);
         txtPass.setBorder(null);
-        txtPass.setFont(new Font("SansSerif", Font.PLAIN, 13));
         txtPass.setForeground(Color.GRAY);
-        txtPass.setEchoChar((char) 0); // show placeholder
-        txtPass.setText("Password");
+        txtPass.setEchoChar((char) 0);
 
-        // Placeholder for password
         txtPass.addFocusListener(new FocusAdapter() {
-            @Override
+            @SuppressWarnings("override")
             public void focusGained(FocusEvent e) {
-                String current = String.valueOf(txtPass.getPassword());
-                if (current.equals("Password")) {
-
+                String pass = new String(txtPass.getPassword());
+                if (pass.equals("Password")) {
                     txtPass.setText("");
-                    txtPass.setEchoChar('•');
                     txtPass.setForeground(Color.BLACK);
-                    passVisible = false;
+                    txtPass.setEchoChar('•');
                 }
             }
 
-            @Override
+            @SuppressWarnings("override")
             public void focusLost(FocusEvent e) {
-                String current = String.valueOf(txtPass.getPassword()).trim();
-                if (current.isEmpty()) {
+                String pass = new String(txtPass.getPassword()).trim();
+                if (pass.isEmpty()) {
                     txtPass.setText("Password");
-                    txtPass.setEchoChar((char) 0);
                     txtPass.setForeground(Color.GRAY);
-                    passVisible = false;
+                    txtPass.setEchoChar((char) 0);
                 }
             }
         });
         card.add(txtPass);
 
-        JLabel line2 = new JLabel("______________________________________");
-        line2.setBounds(80, 230, 200, 20);
+        JLabel line2 = new JLabel("______________________________");
         line2.setForeground(Color.LIGHT_GRAY);
+        line2.setBounds(80, 230, 200, 20);
         card.add(line2);
 
         // Login Button
@@ -141,27 +125,22 @@ public class LoginFrame {
         btnLogin.setFocusPainted(false);
         card.add(btnLogin);
 
-        btnLogin.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String user = txtUser.getText();
-                String pass = String.valueOf(txtPass.getPassword());
+        // FINAL WORKING ACTION LISTENER
+        btnLogin.addActionListener(e -> {
+            String user = txtUser.getText();
+            String pass = String.valueOf(txtPass.getPassword());
 
-                // Ignore placeholders
-                if ("Username".equals(user)) {
-                    user = "";
-                }
-                if ("Password".equals(pass)) {
-                    pass = "";
-                }
+            if (user.equals("Username")) user = "";
+            if (pass.equals("Password")) pass = "";
 
-                User login = auth.validateLogin(user, pass);
+            User login = auth.validateLogin(user, pass);
 
-                if (login != null) {
-                    JOptionPane.showMessageDialog(frame, "Welcome " + login.getUsername() + "!");
-                } else {
-                    JOptionPane.showMessageDialog(frame, "Invalid credentials!");
-                }
+            if (login != null) {
+                JOptionPane.showMessageDialog(frame, "Welcome " + login.getUsername() + "!");
+                frame.dispose();
+                new MainAppFrame(login.getUsername()).showMain();
+            } else {
+                JOptionPane.showMessageDialog(frame, "Invalid credentials!");
             }
         });
 
