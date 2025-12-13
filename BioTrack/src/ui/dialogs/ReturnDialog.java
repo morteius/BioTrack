@@ -1,3 +1,4 @@
+import java.time.LocalDateTime;
 import javax.swing.*;
 
 public class ReturnDialog extends JDialog {
@@ -17,13 +18,35 @@ public class ReturnDialog extends JDialog {
         add(btnReturn);
 
         btnReturn.addActionListener(e -> {
-            if ("Borrowed".equals(equipment.getStatus())) {
-                equipment.setStatus("Available");
-                JOptionPane.showMessageDialog(this, equipment.getName() + " returned successfully!");
-                dispose();
-            } else {
+
+            // Check if the equipment is currently borrowed
+            if (!"Borrowed".equals(equipment.getStatus())) {
                 JOptionPane.showMessageDialog(this, "Equipment was not borrowed!");
+                return;  // Do not continue
             }
+
+            // Update status
+            equipment.setStatus("Available");
+
+            // Prepare timestamp
+            String dateTime = LocalDateTime.now().toString();
+
+            // Create transaction record
+            Transaction t = new Transaction(
+                    equipment.getId(),
+                    equipment.getName(),
+                    "Returned",
+                    "N/A",      
+                    dateTime
+            );
+
+            // Save to transactions.txt
+            TransactionManager.saveTransaction(t);
+
+            JOptionPane.showMessageDialog(this,
+                    equipment.getName() + " returned successfully!");
+
+            dispose();
         });
     }
 }
