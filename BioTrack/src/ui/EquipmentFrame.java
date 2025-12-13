@@ -1,139 +1,179 @@
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.*;
-import java.util.ArrayList;
+import javax.swing.*;
 
-public class EquipmentFrame extends JFrame {
+public class EquipmentFrame {
 
-    private JTable table;
-    private DefaultTableModel model;
-    private ArrayList<Equipment> equipmentList = new ArrayList<>();
+    private JFrame frame;
+    private DefaultListModel<Equipment> equipmentModel;
+    private JList<Equipment> equipmentList;
 
-    private final String FILE_PATH = "biotrack/data/equipment.txt"; // updated path
+    private static final String DATA_DIR = "data";
+    private static final String EQUIPMENT_FILE = DATA_DIR + File.separator + "equipments.txt";
 
-    public EquipmentFrame() {
-        setTitle("Equipment Management System");
-        setSize(800, 450);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    public void showEquipmentFrame() {
+        frame = new JFrame("Equipment Manager");
+        frame.setSize(600, 450);
+        frame.setLayout(null);
+        frame.setLocationRelativeTo(null);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        // Table model
-        model = new DefaultTableModel(new String[] { "ID", "Name", "Category", "Status" }, 0);
-        table = new JTable(model);
-        JScrollPane scrollPane = new JScrollPane(table);
+        JLabel title = new JLabel("Equipment List");
+        title.setFont(new Font("SansSerif", Font.BOLD, 18));
+        title.setBounds(20, 20, 200, 30);
+        frame.add(title);
 
-        // Ensure file exists and load equipment data
-        ensureEquipmentFileExists(FILE_PATH);
-        loadEquipmentFile(FILE_PATH);
-        refreshTable();
+        equipmentModel = new DefaultListModel<>();
+        equipmentList = new JList<>(equipmentModel);
+        JScrollPane scroll = new JScrollPane(equipmentList);
+        scroll.setBounds(20, 70, 350, 300);
+        frame.add(scroll);
 
-        // Buttons
+        loadEquipment();   // ✅ NOW WORKS
+
         JButton btnAdd = new JButton("Add Equipment");
-        JButton btnBorrow = new JButton("Borrow");
+        btnAdd.setBounds(400, 70, 150, 35);
+        frame.add(btnAdd);
+
         JButton btnEdit = new JButton("Edit");
+        btnEdit.setBounds(400, 120, 150, 35);
+        frame.add(btnEdit);
+
+        JButton btnBorrow = new JButton("Borrow");
+        btnBorrow.setBounds(400, 170, 150, 35);
+        frame.add(btnBorrow);
+
         JButton btnReturn = new JButton("Return");
+        btnReturn.setBounds(400, 220, 150, 35);
+        frame.add(btnReturn);
 
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(btnAdd);
-        buttonPanel.add(btnBorrow);
-        buttonPanel.add(btnEdit);
-        buttonPanel.add(btnReturn);
+        JButton btnDelete = new JButton("Delete");
+        btnDelete.setBounds(400, 270, 150, 35);
+        frame.add(btnDelete);
 
-        // Button Actions (replace with your dialogs)
-        btnAdd.addActionListener(e -> openAddDialog());
-        btnBorrow.addActionListener(e -> openBorrowDialog());
-        btnEdit.addActionListener(e -> openEditDialog());
-        btnReturn.addActionListener(e -> openReturnDialog());
+        btnAdd.addActionListener(e -> {
+            AddEquipmentDialog dialog = new AddEquipmentDialog(frame);
+            dialog.setVisible(true);
 
-        // Layout
-        setLayout(new BorderLayout());
-        add(scrollPane, BorderLayout.CENTER);
-        add(buttonPanel, BorderLayout.SOUTH);
+            Equipment eq = dialog.getNewEquipment();
+            if (eq != null) {
+                equipmentModel.addElement(eq);
+                saveEquipment();
+            }
+        });
+
+        btnEdit.addActionListener(e -> {
+            Equipment selected = equipmentList.getSelectedValue();
+            if (selected != null) {
+                new EditEquipmentDialog(frame, selected).setVisible(true);
+                equipmentList.repaint();
+                saveEquipment();
+            } else {
+                JOptionPane.showMessageDialog(frame, "Select an equipment first.");
+            }
+        });
+
+        btnBorrow.addActionListener(e -> {
+            Equipment selected = equipmentList.getSelectedValue();
+            if (selected != null) {
+                new BorrowDialog(frame, selected).setVisible(true);
+                equipmentList.repaint();
+                saveEquipment();
+            } else {
+                JOptionPane.showMessageDialog(frame, "Select an equipment first.");
+            }
+        });
+
+        btnReturn.addActionListener(e -> {
+            Equipment selected = equipmentList.getSelectedValue();
+            if (selected != null) {
+                new ReturnDialog(frame, selected).setVisible(true);
+                equipmentList.repaint();
+                saveEquipment();
+            } else {
+                JOptionPane.showMessageDialog(frame, "Select an equipment first.");
+            }
+        });
+
+        btnDelete.addActionListener(e -> {
+            Equipment selected = equipmentList.getSelectedValue();
+            if (selected != null) {
+                equipmentModel.removeElement(selected);
+                saveEquipment();
+            } else {
+                JOptionPane.showMessageDialog(frame, "Select an equipment first.");
+            }
+        });
+
+        frame.setVisible(true);
     }
 
-    // -----------------------------
-    // Ensure file exists
-    // -----------------------------
-    private void ensureEquipmentFileExists(String filename) {
-        File file = new File(filename);
-        if (!file.exists()) {
-            file.getParentFile().mkdirs(); // create folder if missing
-            try (PrintWriter pw = new PrintWriter(new FileWriter(file))) {
-                pw.println("E1001,Projector,Electronics,Available");
-                pw.println("E1002,Laptop,Electronics,Borrowed");
-                pw.println("E1003,Microphone,Audio,Available");
-                pw.println("E1004,Tripod,Accessories,Available");
-                pw.println("E1005,HDMI Cable,Cables,Damaged");
-                pw.println("E1006,Speakers,Audio,Borrowed");
-                pw.println("E1007,Webcam,Electronics,Available");
-            } catch (IOException e) {
-                JOptionPane.showMessageDialog(this, "Could not create file: " + filename);
+    // -------------------------------------------------------
+    // LOAD EQUIPMENT
+    // -------------------------------------------------------
+    @SuppressWarnings("CallToPrintStackTrace")
+private void loadEquipment() {
+    equipmentModel.clear();
+
+    File file = new File("data/equipments.txt");
+
+    System.out.println("WORKING DIR: " + System.getProperty("user.dir"));
+    System.out.println("LOOKING FOR: " + file.getAbsolutePath());
+
+    if (!file.exists()) {
+        JOptionPane.showMessageDialog(frame,
+                "equipments.txt NOT FOUND!\n\nExpected at:\n" + file.getAbsolutePath());
+        return;
+    }
+
+    try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+        String line;
+
+        while ((line = br.readLine()) != null) {
+            System.out.println("READ: " + line);
+
+            String[] parts = line.split("\\|");
+            if (parts.length == 4) {
+                equipmentModel.addElement(new Equipment(
+                        parts[0],
+                        parts[1],
+                        parts[2],
+                        parts[3]
+                ));
             }
         }
-    }
 
-    // -----------------------------
-    // Load equipment data from TXT
-    // -----------------------------
-    private void loadEquipmentFile(String filename) {
-        equipmentList.clear();
-        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] data = line.split(",");
-                if (data.length == 4) {
-                    Equipment eq = new Equipment(
-                            data[0].trim(),
-                            data[1].trim(),
-                            data[2].trim(),
-                            data[3].trim());
-                    equipmentList.add(eq);
-                }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+
+
+    // -------------------------------------------------------
+    // SAVE EQUIPMENT
+    // -------------------------------------------------------
+    @SuppressWarnings("CallToPrintStackTrace")
+    private void saveEquipment() {
+
+        File dir = new File(DATA_DIR);
+        if (!dir.exists()) dir.mkdir();
+
+        try (PrintWriter pw = new PrintWriter(
+                new FileWriter(EQUIPMENT_FILE))) {
+
+            for (int i = 0; i < equipmentModel.getSize(); i++) {
+                Equipment eq = equipmentModel.get(i);
+
+                pw.println(
+                        eq.getId() + "|" +
+                        eq.getName() + "|" +
+                        eq.getCategory() + "|" +
+                        eq.getStatus()
+                );
             }
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Could not load file: " + filename);
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    }
-
-    // -----------------------------
-    // Refresh table
-    // -----------------------------
-    private void refreshTable() {
-        model.setRowCount(0);
-        for (Equipment eq : equipmentList) {
-            model.addRow(new Object[] {
-                    eq.getId(),
-                    eq.getName(),
-                    eq.getCategory(),
-                    eq.getStatus()
-            });
-        }
-    }
-
-    // -----------------------------
-    // Dialog placeholders
-    // -----------------------------
-    private void openAddDialog() {
-        JOptionPane.showMessageDialog(this, "AddEquipmentDialog goes here.");
-    }
-
-    private void openBorrowDialog() {
-        JOptionPane.showMessageDialog(this, "BorrowDialog goes here.");
-    }
-
-    private void openEditDialog() {
-        JOptionPane.showMessageDialog(this, "EditEquipmentDialog goes here.");
-    }
-
-    private void openReturnDialog() {
-        JOptionPane.showMessageDialog(this, "ReturnDialog goes here.");
-    }
-
-    // -----------------------------
-    // Main for testing
-    // -----------------------------
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new EquipmentFrame().setVisible(true));
     }
 }
