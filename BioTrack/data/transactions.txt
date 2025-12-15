@@ -1,6 +1,0 @@
-EQ1765559974026|microscope|Returned|N/A|2025-12-13T01:23:49.572599400
-EQ1765559974026|microscope|Borrowed|mnchey|2025-12-13T01:29:15.892924700
-2025-12-13 01:34:51 | Edited | ID: EQ1765559974026 | microscope | Status: Borrowed -> Available
-2025-12-13 01:37:51 | Added | ID: EQ1765561071620 | cylinder | Status:  -> Available
-EQ1765561071620|cylinder|Borrowed|maxvsha x|2025-12-13T23:50:29.014350800
-EQ1765560880740|autoclave|Borrowed|shian|2025-12-14T02:49:09.116

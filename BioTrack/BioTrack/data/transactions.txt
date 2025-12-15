@@ -1,0 +1,50 @@
+TXN177674,EQ116677,Fume Hood,James Miller,4,12-15-2025 12:30 PM,Borrow
+TXN223456,EQ524680,Beaker (350mL),Sarah Johnson,2,12-15-2025 01:15 PM,Borrow
+TXN334567,EQ123456,Microscope X200,Michael Chen,1,12-15-2025 02:45 PM,Borrow
+TXN445678,EQ345678,Digital Scale 0.01g,Emily Rodriguez,1,12-16-2025 09:30 AM,Borrow
+TXN556789,EQ901234,Bunsen Burner #3,David Wilson,3,12-16-2025 10:45 AM,Borrow
+TXN667890,EQ567890,Autoclave Pro,Jennifer Lee,1,12-16-2025 11:20 AM,Borrow
+TXN778901,EQ246810,Test Tube Rack 50pc,Robert Davis,5,12-16-2025 02:15 PM,Borrow
+TXN889012,EQ135790,pH Meter Pro+,Amanda Garcia,1,12-17-2025 09:00 AM,Borrow
+TXN990123,EQ112233,Incubator 37°C,Kevin Brown,1,12-17-2025 10:30 AM,Borrow
+TXN101234,EQ445566,Safety Goggles Set,Stephanie White,10,12-17-2025 11:45 AM,Borrow
+TXN112345,EQ778899,Pipette Set (10ml),Christopher Martinez,4,12-17-2025 01:30 PM,Borrow
+TXN123456,EQ223344,Microcentrifuge,Melissa Taylor,1,12-18-2025 09:15 AM,Borrow
+TXN134567,EQ556677,Lab Jack Stand,Daniel Anderson,3,12-18-2025 10:00 AM,Borrow
+TXN145678,EQ889900,Glove Box,Ashley Thomas,1,12-18-2025 11:20 AM,Borrow
+TXN156789,EQ334455,Vortex Mixer,Joshua Hernandez,2,12-18-2025 02:45 PM,Borrow
+TXN167890,EQ991122,Microscope Slides 100pk,Brian Moore,15,12-19-2025 09:30 AM,Borrow
+TXN178901,EQ113355,Electronic Balance 0.001g,Nicole Martin,2,12-19-2025 10:45 AM,Borrow
+TXN189012,EQ224466,Lab Coats (Medium),Jason Clark,6,12-19-2025 01:15 PM,Borrow
+TXN190123,EQ775533,Microplate Reader,Rebecca Lewis,1,12-20-2025 09:00 AM,Borrow
+TXN201234,EQ886644,PCR Machine,Timothy Walker,1,12-20-2025 10:30 AM,Borrow
+TXN212345,EQ997755,Electrophoresis Chamber,Samantha Hall,2,12-20-2025 11:45 AM,Borrow
+TXN223456,EQ338877,Gel Documentation System,Jeffrey Allen,1,12-21-2025 09:15 AM,Borrow
+TXN234567,EQ449988,Refrigerator 4°C,Michelle Young,1,12-21-2025 10:00 AM,Borrow
+TXN245678,EQ550099,Freezer -20°C,Andrew King,1,12-21-2025 11:30 AM,Borrow
+TXN256789,EQ661100,Ultracentrifuge 100k RPM,Lauren Wright,1,12-22-2025 09:45 AM,Borrow
+TXN267890,EQ772211,Sonicator 500W,Jonathan Scott,2,12-22-2025 10:15 AM,Return
+TXN278901,EQ883322,Magnetic Stirrer Hotplate,Elizabeth Green,2,12-22-2025 11:45 AM,Return
+TXN289012,EQ105566,UV-Vis Spectrophotometer,Ryan Baker,1,12-23-2025 09:30 AM,Return
+TXN290123,EQ116677,Fume Hood,James Miller,3,12-23-2025 10:45 AM,Return
+TXN301234,EQ127788,Biosafety Cabinet,Adam Nelson,2,12-23-2025 11:20 AM,Borrow
+TXN312345,EQ138899,CO2 Incubator,Catherine Carter,1,12-23-2025 01:15 PM,Borrow
+TXN323456,EQ149900,Shaking Incubator,Patrick Mitchell,2,12-24-2025 09:00 AM,Borrow
+TXN334567,EQ150011,Laminar Flow Hood,Sophia Perez,1,12-24-2025 10:30 AM,Borrow
+TXN345678,EQ161122,Automatic Pipette 8-Channel,Brandon Roberts,2,12-24-2025 11:45 AM,Return
+TXN356789,EQ183344,Microtome,Rachel Turner,1,12-25-2025 09:15 AM,Borrow
+TXN367890,EQ194455,Tissue Homogenizer,Justin Phillips,2,12-25-2025 10:00 AM,Borrow
+TXN378901,EQ205566,Cell Counter,Victoria Campbell,1,12-25-2025 11:20 AM,Borrow
+TXN389012,EQ216677,Flow Cytometer,Maria Parker,1,12-26-2025 09:45 AM,Borrow
+TXN390123,EQ227788,Confocal Microscope,Alexander Evans,1,12-26-2025 10:15 AM,Borrow
+TXN401234,EQ249900,Atomic Force Microscope,Katherine Edwards,1,12-26-2025 11:30 AM,Borrow
+TXN412345,EQ250011,FTIR Spectrometer,Nathan Collins,1,12-27-2025 09:30 AM,Return
+TXN423456,EQ283344,HPLC System,Christina Stewart,1,12-27-2025 10:45 AM,Borrow
+TXN434567,EQ294455,GC-MS System,Benjamin Sanchez,1,12-27-2025 11:20 AM,Borrow
+TXN445678,EQ305566,LC-MS System,Jessica Morris,1,12-28-2025 09:00 AM,Borrow
+TXN456789,EQ316677,TOC Analyzer,Shawn Rogers,1,12-28-2025 10:30 AM,Return
+TXN467890,EQ327788,CHNS Elemental Analyzer,Heather Reed,1,12-28-2025 11:45 AM,Borrow
+TXN478901,EQ350011,XRF Analyzer,Scott Cook,1,12-29-2025 09:15 AM,Borrow
+TXN489012,EQ361122,SEM Microscope,Danielle Morgan,1,12-29-2025 10:00 AM,Borrow
+TXN490123,EQ383344,Centrifuge Tubes 50mL 100pk,Gregory Bell,20,12-29-2025 11:30 AM,Borrow
+TXN501234,EQ394455,Pipette Tips 200µL 1000pk,Tiffany Murphy,30,12-30-2025 09:45 AM,Borrow
