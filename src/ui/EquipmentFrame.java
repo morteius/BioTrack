@@ -14,7 +14,11 @@ import java.util.Set;
 public class EquipmentFrame {
     private JFrame frame;
     private DefaultTableModel model;
+    
+    // List to store equipment objects loaded from file and displayed in the table
     private List<Equipment> data;
+    
+    // Set to store existing transaction IDs to ensure uniqueness when generating new ones
     private Set<String> existingTransactionIds = new HashSet<>();
     
     public void showEquipmentFrame() {
@@ -55,12 +59,11 @@ public class EquipmentFrame {
         model = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // Make all cells non-editable
+                return false;
             }
             
             @Override
             public Class<?> getColumnClass(int columnIndex) {
-                // Sort columns properly
                 if (columnIndex == 5 || columnIndex == 6) {
                     return Integer.class;
                 }
@@ -71,17 +74,13 @@ public class EquipmentFrame {
         JTable table = new JTable(model);
         styleTable(table);
         
-        // Set custom renderer for Status column (column 3)
-        table.getColumnModel().getColumn(3).setCellRenderer(new StatusCellRenderer());
-        
-        // Add table sorter
-        table.setAutoCreateRowSorter(true);
-        table.getRowSorter().toggleSortOrder(1); // Sort by Name column initially
+        // Add hover effects
+        addTableHoverEffects(table);
         
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createLineBorder(new Color(220, 230, 240), 1));
         
-        // Buttons panel with hover effects
+        // Buttons panel
         JPanel buttons = new JPanel(new GridLayout(7, 1, 0, 10));
         buttons.setOpaque(false);
         buttons.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
@@ -98,9 +97,14 @@ public class EquipmentFrame {
             "🔧 Maintenance", "🗑️ Remove", "🔄 Refresh"
         };
         
+        // LOOP 1: Create action buttons for equipment management
+        // This loop creates 7 buttons with different colors and text, each with a specific action
         for (int i = 0; i < 7; i++) {
+            // Create button with hover effect
             JButton btn = createHoverButton(btnTexts[i], btnColors[i], btnColors[i].darker());
-            final int index = i;
+            final int index = i; // Capture current index for event handler
+            
+            // Add action listener that calls handleButtonClick with the button index
             btn.addActionListener(e -> handleButtonClick(index, table));
             buttons.add(btn);
         }
@@ -116,57 +120,136 @@ public class EquipmentFrame {
         frame.setVisible(true);
     }
     
-    // Custom cell renderer for Status column
-    private class StatusCellRenderer extends DefaultTableCellRenderer {
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value,
-                boolean isSelected, boolean hasFocus, int row, int column) {
-            Component c = super.getTableCellRendererComponent(table, value, 
-                    isSelected, hasFocus, row, column);
-            
-            String status = value.toString();
-            
-            // Set colors based on status
-            if (status.equalsIgnoreCase("Available")) {
-                c.setForeground(new Color(52, 168, 83)); // Green
-                c.setFont(c.getFont().deriveFont(Font.BOLD));
-            } else if (status.equalsIgnoreCase("Borrowed")) {
-                c.setForeground(new Color(234, 67, 53)); // Red
-                c.setFont(c.getFont().deriveFont(Font.BOLD));
-            } else if (status.equalsIgnoreCase("Maintenance")) {
-                c.setForeground(new Color(155, 89, 182)); // Purple
-                c.setFont(c.getFont().deriveFont(Font.BOLD));
-            } else if (status.equalsIgnoreCase("Partially Available")) {
-                c.setForeground(new Color(251, 188, 5)); // Yellow/Orange
-                c.setFont(c.getFont().deriveFont(Font.BOLD));
-            } else if (status.equalsIgnoreCase("Damaged")) {
-                c.setForeground(new Color(192, 57, 43)); // Dark Red
-                c.setFont(c.getFont().deriveFont(Font.BOLD));
-            } else {
-                c.setForeground(Color.BLACK);
+    private void styleTable(JTable table) {
+        // Set font - BIGGER and BOLDER
+        table.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        table.setRowHeight(40);
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        table.getTableHeader().setBackground(new Color(44, 62, 80));
+        table.getTableHeader().setForeground(Color.WHITE);
+        table.getTableHeader().setReorderingAllowed(false);
+        
+        // Custom cell renderer with colors
+        table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                
+                Component c = super.getTableCellRendererComponent(table, value, 
+                        isSelected, hasFocus, row, column);
+                
+                // Set bold font for all data
+                setFont(getFont().deriveFont(Font.BOLD));
+                
+                // Set alignment
+                if (column == 0 || column == 5 || column == 6) { // ID, Qty, Available
+                    setHorizontalAlignment(SwingConstants.CENTER);
+                } else if (column == 7) { // Last Maintenance
+                    setHorizontalAlignment(SwingConstants.CENTER);
+                } else {
+                    setHorizontalAlignment(SwingConstants.LEFT);
+                }
+                
+                // Set colors based on column
+                if (column == 0) { // ID - Blue
+                    c.setForeground(new Color(66, 133, 244));
+                } else if (column == 3) { // Status
+                    String status = value.toString();
+                    if (status.equalsIgnoreCase("Available")) {
+                        c.setForeground(new Color(52, 168, 83)); // Green
+                    } else if (status.equalsIgnoreCase("Borrowed")) {
+                        c.setForeground(new Color(234, 67, 53)); // Red
+                    } else if (status.equalsIgnoreCase("Maintenance")) {
+                        c.setForeground(new Color(155, 89, 182)); // Purple
+                    } else if (status.equalsIgnoreCase("Damaged")) {
+                        c.setForeground(new Color(192, 57, 43)); // Dark Red
+                    } else {
+                        c.setForeground(Color.BLACK);
+                    }
+                } else if (column == 5) { // Qty - Orange
+                    c.setForeground(new Color(251, 188, 5));
+                } else if (column == 6) { // Available - Green
+                    int available = value instanceof Integer ? (Integer) value : 0;
+                    if (available > 0) {
+                        c.setForeground(new Color(52, 168, 83)); // Green
+                    } else {
+                        c.setForeground(new Color(234, 67, 53)); // Red
+                    }
+                } else if (column == 7) { // Last Maintenance - Important date
+                    c.setForeground(new Color(155, 89, 182)); // Purple
+                } else {
+                    c.setForeground(Color.BLACK);
+                }
+                
+                // Background colors
+                if (isSelected) {
+                    c.setBackground(new Color(52, 152, 219)); // Blue selection
+                    c.setForeground(Color.WHITE);
+                } else if (row % 2 == 0) {
+                    c.setBackground(new Color(250, 250, 250)); // Light gray
+                } else {
+                    c.setBackground(Color.WHITE);
+                }
+                
+                // Add cell borders
+                setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createMatteBorder(0, 0, 1, 1, new Color(221, 221, 221)),
+                    BorderFactory.createEmptyBorder(5, 10, 5, 10)
+                ));
+                
+                return c;
             }
-            
-            // Center align the text
-            setHorizontalAlignment(SwingConstants.CENTER);
-            
-            return c;
-        }
+        });
+        
+        // Set column widths
+        table.getColumnModel().getColumn(0).setPreferredWidth(100);
+        table.getColumnModel().getColumn(1).setPreferredWidth(200);
+        table.getColumnModel().getColumn(2).setPreferredWidth(180);
+        table.getColumnModel().getColumn(3).setPreferredWidth(120);
+        table.getColumnModel().getColumn(4).setPreferredWidth(150);
+        table.getColumnModel().getColumn(5).setPreferredWidth(80);
+        table.getColumnModel().getColumn(6).setPreferredWidth(90);
+        table.getColumnModel().getColumn(7).setPreferredWidth(180);
     }
     
-    // Create button with hover effect
-    private JButton createHoverButton(String text, Color normalColor, Color hoverColor) {
-        JButton btn = new JButton(text) {
+    private void addTableHoverEffects(JTable table) {
+        // Add hover effect
+        table.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            private int hoveredRow = -1;
+            private int hoveredColumn = -1;
+            
             @Override
-            protected void paintComponent(Graphics g) {
-                if (getModel().isRollover()) {
-                    setBackground(hoverColor);
+            public void mouseMoved(java.awt.event.MouseEvent e) {
+                int row = table.rowAtPoint(e.getPoint());
+                int col = table.columnAtPoint(e.getPoint());
+                
+                // Change cursor to hand when over table
+                if (row >= 0 && col >= 0) {
+                    table.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 } else {
-                    setBackground(normalColor);
+                    table.setCursor(Cursor.getDefaultCursor());
                 }
-                super.paintComponent(g);
+                
+                // Repaint to show hover effect
+                if (row != hoveredRow || col != hoveredColumn) {
+                    hoveredRow = row;
+                    hoveredColumn = col;
+                    table.repaint();
+                }
             }
-        };
+        });
         
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                table.setCursor(Cursor.getDefaultCursor());
+                table.repaint();
+            }
+        });
+    }
+    
+    private JButton createHoverButton(String text, Color normalColor, Color hoverColor) {
+        JButton btn = new JButton(text);
         btn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         btn.setBackground(normalColor);
         btn.setForeground(Color.WHITE);
@@ -174,7 +257,6 @@ public class EquipmentFrame {
         btn.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         
-        // Add hover effect
         btn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent e) {
                 btn.setBackground(hoverColor);
@@ -187,57 +269,30 @@ public class EquipmentFrame {
         return btn;
     }
     
-    private void styleTable(JTable table) {
-        table.setFont(new Font("Segoe UI", Font.PLAIN, 14)); // Increased font size
-        table.setRowHeight(40); // Increased row height for better readability
-        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
-        table.getTableHeader().setBackground(new Color(44, 62, 80));
-        table.getTableHeader().setForeground(Color.WHITE);
-        table.getTableHeader().setReorderingAllowed(false);
-        
-        // Additional protection against editing
-        table.setDefaultEditor(Object.class, null);
-        
-        // Center align all columns
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-        
-        // Set column widths for better readability
-        table.getColumnModel().getColumn(0).setPreferredWidth(100); // ID
-        table.getColumnModel().getColumn(1).setPreferredWidth(200); // Name (wider)
-        table.getColumnModel().getColumn(2).setPreferredWidth(180); // Category
-        table.getColumnModel().getColumn(3).setPreferredWidth(120); // Status
-        table.getColumnModel().getColumn(4).setPreferredWidth(150); // Location
-        table.getColumnModel().getColumn(5).setPreferredWidth(70);  // Qty
-        table.getColumnModel().getColumn(6).setPreferredWidth(90);  // Available
-        table.getColumnModel().getColumn(7).setPreferredWidth(180); // Last Maintenance
-        
-        // Center align specific columns
-        for (int i = 0; i < table.getColumnCount(); i++) {
-            if (i != 1 && i != 2 && i != 4) { // Name, Category, Location remain left-aligned
-                table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-            }
-        }
-    }
-    
     private void loadData() {
+        // Clear existing table data
         model.setRowCount(0);
+        // Initialize or clear the equipment list
         data = new ArrayList<>();
         
         try {
             File file = new File("data/equipments.txt");
             if (!file.exists()) {
+                // Create directory and file if they don't exist
                 file.getParentFile().mkdirs();
                 file.createNewFile();
                 return;
             }
             
+            // LOOP 2: Read equipment data from file line by line
             try (BufferedReader br = new BufferedReader(new FileReader(file))) {
                 String line;
+                // Read each line until end of file
                 while ((line = br.readLine()) != null) {
                     String[] parts = line.split(",");
                     Equipment eq;
                     
+                    // Parse equipment data with backward compatibility for old format
                     if (parts.length >= 8) {
                         // New format with availableQuantity
                         eq = new Equipment(
@@ -259,6 +314,7 @@ public class EquipmentFrame {
                         continue; // Skip invalid lines
                     }
                     
+                    // Add parsed equipment to the list
                     data.add(eq);
                 }
             }
@@ -271,8 +327,9 @@ public class EquipmentFrame {
                 }
             });
             
-            // Add sorted data to table
+            // LOOP 3: Add sorted equipment data to the table model
             for (Equipment eq : data) {
+                // Add each equipment as a row in the table
                 model.addRow(new Object[]{
                     eq.getId(), eq.getName(), eq.getCategory(),
                     eq.getStatus(), eq.getLocation(), eq.getQuantity(),
@@ -407,7 +464,7 @@ public class EquipmentFrame {
     }
     
     private void saveAllEquipment() {
-        // Sort before saving
+        // Sort before saving to maintain alphabetical order in file
         Collections.sort(data, new Comparator<Equipment>() {
             @Override
             public int compare(Equipment e1, Equipment e2) {
@@ -415,6 +472,7 @@ public class EquipmentFrame {
             }
         });
         
+        // LOOP 4: Write all equipment data back to file
         try (BufferedWriter bw = new BufferedWriter(new FileWriter("data/equipments.txt"))) {
             for (Equipment eq : data) {
                 // Save with new format including availableQuantity
@@ -426,7 +484,7 @@ public class EquipmentFrame {
                         eq.getQuantity() + "," +
                         eq.getAvailableQuantity() + "," +
                         eq.getLastMaintenance());
-                bw.newLine();
+                bw.newLine(); // Write each equipment on a new line
             }
         } catch (IOException e) {
             JOptionPane.showMessageDialog(frame, "Error saving data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -440,6 +498,7 @@ public class EquipmentFrame {
                 dataDir.mkdir();
             }
             
+            // Append transaction to file (append mode)
             try (BufferedWriter bw = new BufferedWriter(new FileWriter("data/transactions.txt", true))) {
                 // Generate 6-digit transaction ID
                 String transactionId = generateTransactionId();
@@ -449,6 +508,7 @@ public class EquipmentFrame {
                     DateTimeFormatter.ofPattern("MM-dd-yyyy hh:mm a")
                 );
                 
+                // Write transaction record
                 bw.write(transactionId + "," +
                         equipmentId + "," +
                         equipmentName + "," +
@@ -465,16 +525,19 @@ public class EquipmentFrame {
     
     // Generate 6-digit transaction ID
     private String generateTransactionId() {
-        // Load existing transaction IDs
+        // Load existing transaction IDs to check for uniqueness
         loadExistingTransactionIds();
         
         String id;
+        // LOOP 5: Generate unique transaction ID
+        // This loop continues until a non-duplicate ID is generated
         do {
-            // Generate random 6-digit number
-            int num = 100000 + (int)(Math.random() * 900000); // 100000 to 999999
+            // Generate random 6-digit number (100000 to 999999)
+            int num = 100000 + (int)(Math.random() * 900000);
             id = "TXN" + num;
-        } while (existingTransactionIds.contains(id)); // Ensure uniqueness
+        } while (existingTransactionIds.contains(id)); // Check if ID already exists
         
+        // Add new ID to the set to maintain uniqueness
         existingTransactionIds.add(id);
         return id;
     }
@@ -485,11 +548,14 @@ public class EquipmentFrame {
             File file = new File("data/transactions.txt");
             if (!file.exists()) return;
             
+            // LOOP 6: Read all transaction IDs from file
             try (BufferedReader br = new BufferedReader(new FileReader(file))) {
                 String line;
+                // Read each transaction record
                 while ((line = br.readLine()) != null) {
                     String[] parts = line.split(",");
                     if (parts.length > 0) {
+                        // Add transaction ID to the set (first column)
                         existingTransactionIds.add(parts[0].trim());
                     }
                 }
