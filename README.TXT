@@ -8,7 +8,10 @@ SYSTEM REQUIREMENTS:
 - Windows 7/8/10/11
 
 INSTALLATION:
-1. Run 'install.bat'
+1. Run:
+        Windows: Double-click "run.bat"
+        Linux:   Double-click "run.sh" or run in terminal: ./run.sh
+        Mac:     Double-click "run.command"
 2. Follow the on-screen instructions
 3. Launch BioTrack from desktop shortcut
 

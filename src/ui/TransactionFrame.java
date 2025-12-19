@@ -45,12 +45,12 @@ public class TransactionFrame {
         content.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         content.setOpaque(false);
         
-        // Table - FIXED: Make non-editable
+        // Table
         String[] columns = {"Transaction ID", "Equipment ID", "Equipment Name", "Person", "Quantity", "Date & Time", "Action"};
         model = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // All cells are non-editable
+                return false;
             }
             
             @Override
@@ -65,12 +65,8 @@ public class TransactionFrame {
         JTable table = new JTable(model);
         styleTable(table);
         
-        // Add table sorter
-        table.setAutoCreateRowSorter(true);
-        table.getRowSorter().toggleSortOrder(3); // Sort by Person column initially
-        
-        // Additional protection against editing
-        table.setDefaultEditor(Object.class, null);
+        // Add hover effects
+        addTableHoverEffects(table);
         
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createLineBorder(new Color(220, 230, 240), 1));
@@ -111,18 +107,7 @@ public class TransactionFrame {
     
     // Create button with hover effect
     private JButton createHoverButton(String text, Color normalColor, Color hoverColor) {
-        JButton btn = new JButton(text) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                if (getModel().isRollover()) {
-                    setBackground(hoverColor);
-                } else {
-                    setBackground(normalColor);
-                }
-                super.paintComponent(g);
-            }
-        };
-        
+        JButton btn = new JButton(text);
         btn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         btn.setBackground(normalColor);
         btn.setForeground(Color.WHITE);
@@ -144,52 +129,123 @@ public class TransactionFrame {
     }
     
     private void styleTable(JTable table) {
-        table.setFont(new Font("Segoe UI", Font.PLAIN, 14)); // Increased font size
-        table.setRowHeight(40); // Increased row height for better readability
+        // Set font - BIGGER and BOLDER
+        table.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        table.setRowHeight(40);
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
         table.getTableHeader().setBackground(new Color(44, 62, 80));
         table.getTableHeader().setForeground(Color.WHITE);
         table.getTableHeader().setReorderingAllowed(false);
         
-        // Set column widths for better readability
+        // Custom cell renderer with colors
+        table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                
+                Component c = super.getTableCellRendererComponent(table, value, 
+                        isSelected, hasFocus, row, column);
+                
+                // Set bold font for all data
+                setFont(getFont().deriveFont(Font.BOLD));
+                
+                // Set alignment
+                if (column == 0 || column == 1 || column == 4 || column == 6) {
+                    setHorizontalAlignment(SwingConstants.CENTER);
+                } else {
+                    setHorizontalAlignment(SwingConstants.LEFT);
+                }
+                
+                // Set colors based on column
+                if (column == 0) { // Transaction ID - Blue
+                    c.setForeground(new Color(66, 133, 244));
+                } else if (column == 1) { // Equipment ID - Dark Blue
+                    c.setForeground(new Color(52, 152, 219));
+                } else if (column == 2) { // Equipment Name - Black (bold)
+                    c.setForeground(Color.BLACK);
+                } else if (column == 3) { // Person - Dark Gray
+                    c.setForeground(new Color(80, 90, 100));
+                } else if (column == 4) { // Quantity - Orange
+                    c.setForeground(new Color(251, 188, 5));
+                } else if (column == 5) { // Date & Time - IMPORTANT COLOR (Purple)
+                    c.setForeground(new Color(155, 89, 182));
+                } else if (column == 6) { // Action column
+                    String action = value.toString();
+                    if (action.equalsIgnoreCase("Borrow")) {
+                        c.setForeground(new Color(234, 67, 53)); // Red for Borrow
+                    } else if (action.equalsIgnoreCase("Return")) {
+                        c.setForeground(new Color(52, 168, 83)); // Green for Return
+                    } else if (action.equalsIgnoreCase("Maintenance")) {
+                        c.setForeground(new Color(155, 89, 182)); // Purple for Maintenance
+                    } else {
+                        c.setForeground(new Color(251, 188, 5)); // Yellow for others
+                    }
+                }
+                
+                // Background colors
+                if (isSelected) {
+                    c.setBackground(new Color(52, 152, 219)); // Blue selection
+                    c.setForeground(Color.WHITE);
+                } else if (row % 2 == 0) {
+                    c.setBackground(new Color(250, 250, 250)); // Light gray
+                } else {
+                    c.setBackground(Color.WHITE);
+                }
+                
+                // Add cell borders
+                setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createMatteBorder(0, 0, 1, 1, new Color(221, 221, 221)),
+                    BorderFactory.createEmptyBorder(5, 10, 5, 10)
+                ));
+                
+                return c;
+            }
+        });
+        
+        // Set column widths
         table.getColumnModel().getColumn(0).setPreferredWidth(140); // Transaction ID
         table.getColumnModel().getColumn(1).setPreferredWidth(100); // Equipment ID
         table.getColumnModel().getColumn(2).setPreferredWidth(200); // Equipment Name
-        table.getColumnModel().getColumn(3).setPreferredWidth(150); // Person (wider)
+        table.getColumnModel().getColumn(3).setPreferredWidth(150); // Person
         table.getColumnModel().getColumn(4).setPreferredWidth(80);  // Quantity
-        table.getColumnModel().getColumn(5).setPreferredWidth(180); // Date & Time
+        table.getColumnModel().getColumn(5).setPreferredWidth(180); // Date & Time (wider)
         table.getColumnModel().getColumn(6).setPreferredWidth(100); // Action
-        
-        // Add custom renderer for Action column
-        table.getColumnModel().getColumn(6).setCellRenderer(new ActionCellRenderer());
     }
     
-    // Custom cell renderer for Action column
-    private class ActionCellRenderer extends DefaultTableCellRenderer {
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value,
-                boolean isSelected, boolean hasFocus, int row, int column) {
-            Component c = super.getTableCellRendererComponent(table, value, 
-                    isSelected, hasFocus, row, column);
+    private void addTableHoverEffects(JTable table) {
+        // Add hover effect
+        table.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            private int hoveredRow = -1;
+            private int hoveredColumn = -1;
             
-            String action = value.toString();
-            
-            // Set colors based on action
-            if (action.equalsIgnoreCase("Borrow")) {
-                c.setForeground(new Color(234, 67, 53)); // Red for Borrow
-                c.setFont(c.getFont().deriveFont(Font.BOLD));
-            } else if (action.equalsIgnoreCase("Return")) {
-                c.setForeground(new Color(52, 168, 83)); // Green for Return
-                c.setFont(c.getFont().deriveFont(Font.BOLD));
-            } else {
-                c.setForeground(Color.BLACK);
+            @Override
+            public void mouseMoved(java.awt.event.MouseEvent e) {
+                int row = table.rowAtPoint(e.getPoint());
+                int col = table.columnAtPoint(e.getPoint());
+                
+                // Change cursor to hand when over table
+                if (row >= 0 && col >= 0) {
+                    table.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                } else {
+                    table.setCursor(Cursor.getDefaultCursor());
+                }
+                
+                // Repaint to show hover effect
+                if (row != hoveredRow || col != hoveredColumn) {
+                    hoveredRow = row;
+                    hoveredColumn = col;
+                    table.repaint();
+                }
             }
-            
-            // Center align the text
-            setHorizontalAlignment(SwingConstants.CENTER);
-            
-            return c;
-        }
+        });
+        
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                table.setCursor(Cursor.getDefaultCursor());
+                table.repaint();
+            }
+        });
     }
     
     // Data class for transactions
@@ -233,11 +289,11 @@ public class TransactionFrame {
                 }
             }
             
-            // Sort transactions alphabetically by person name
+            // Sort transactions by date (most recent first)
             Collections.sort(transactionData, new Comparator<TransactionData>() {
                 @Override
                 public int compare(TransactionData t1, TransactionData t2) {
-                    return t1.person.compareToIgnoreCase(t2.person);
+                    return t2.dateTime.compareTo(t1.dateTime); // Reverse order for most recent first
                 }
             });
             
@@ -258,7 +314,7 @@ public class TransactionFrame {
         loadData();
         if (!filter.equals("All")) {
             for (int i = model.getRowCount() - 1; i >= 0; i--) {
-                String action = (String) model.getValueAt(i, 6); // Action is now in column 6
+                String action = (String) model.getValueAt(i, 6); // Action is in column 6
                 if (!action.equalsIgnoreCase(filter)) {
                     model.removeRow(i);
                 }
